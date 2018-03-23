@@ -5,20 +5,38 @@
 #################################################################################
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-BUCKET = [OPTIONAL] your-bucket-for-syncing-data (do not include 's3://')
-PROFILE = default
+#BUCKET = [OPTIONAL] your-bucket-for-syncing-data (do not include 's3://')
+#PROFILE = default
 PROJECT_NAME = dpl
 PYTHON_INTERPRETER = python
-
-ifeq (,$(shell which conda))
-HAS_CONDA=False
-else
-HAS_CONDA=True
-endif
 
 #################################################################################
 # COMMANDS                                                                      #
 #################################################################################
+
+build:
+	docker build . --rm -t dpl_image:0.1
+
+run: build stop
+	docker run -p 8888:8888 \
+			   -t \
+			   --name ${PROJECT_NAME} \
+			   -v ${PROJECT_DIR}:/home/ds/notebooks \
+			   dpl_image:0.1
+
+stop:
+	docker rm -f ${PROJECT_NAME} || true
+
+get_running_containers:
+	docker ps -a
+
+get_images:
+	docker images
+
+
+
+
+
 
 ## Install Python Dependencies
 requirements: test_environment
